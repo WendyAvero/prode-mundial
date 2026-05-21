@@ -2,6 +2,14 @@
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
+function TeamFlag({ team }: { team: any }) {
+  if (!team) return null
+  const isUrl = team.flag_emoji?.startsWith('http')
+  return isUrl
+    ? <img src={team.flag_emoji} alt={team.name} className="w-8 h-5 object-cover rounded-sm inline-block" />
+    : <span className="text-xl">{team.flag_emoji}</span>
+}
+
 function isPredictionOpen(matchDate: string) {
   return new Date(matchDate).getTime() - Date.now() > 30 * 60 * 1000
 }
@@ -88,9 +96,9 @@ export default function PronosticosClient({ matches }: { matches: any[] }) {
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex-1 text-right">
-                  <p className="text-white font-semibold text-sm">{match.home_team?.name}</p>
-                  <p className="text-2xl">{match.home_team?.flag_emoji}</p>
+                <div className="flex-1 text-right flex items-center justify-end gap-2">
+                  <span className="text-white font-semibold text-sm">{match.home_team?.name}</span>
+                  <TeamFlag team={match.home_team} />
                 </div>
                 <div className="flex items-center gap-2">
                   <input
@@ -109,9 +117,9 @@ export default function PronosticosClient({ matches }: { matches: any[] }) {
                     className="w-12 h-10 text-center bg-slate-700 border border-slate-600 rounded-lg text-white font-bold disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-[#7697C9]"
                   />
                 </div>
-                <div className="flex-1">
-                  <p className="text-white font-semibold text-sm">{match.away_team?.name}</p>
-                  <p className="text-2xl">{match.away_team?.flag_emoji}</p>
+                <div className="flex-1 flex items-center gap-2">
+                  <TeamFlag team={match.away_team} />
+                  <span className="text-white font-semibold text-sm">{match.away_team?.name}</span>
                 </div>
               </div>
               {open && (
