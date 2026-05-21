@@ -2,6 +2,14 @@ import React from 'react'
 export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 
+function TeamFlag({ team }: { team: any }) {
+  if (!team) return null
+  const isUrl = team.flag_emoji?.startsWith('http')
+  return isUrl
+    ? <img src={team.flag_emoji} alt={team.name} className="w-6 h-4 object-cover rounded-sm inline-block" />
+    : <span>{team.flag_emoji}</span>
+}
+
 export default async function AdminPage() {
   let users: any[] = []
   let matches: any[] = []
@@ -21,7 +29,7 @@ export default async function AdminPage() {
     <div className="min-h-screen bg-slate-900 p-4 lg:p-8">
       <div className="max-w-5xl mx-auto space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Panel Administrador</h1>
+          <h1 className="text-2xl font-bold text-white">🛡️ Panel Administrador</h1>
           <p className="text-slate-400 text-sm">Prode Mundial FIFA 2026</p>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -43,20 +51,23 @@ export default async function AdminPage() {
           </div>
         </div>
         <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5">
-          <h2 className="font-semibold text-white mb-4">Cargar Resultados</h2>
+          <h2 className="font-semibold text-white mb-4">📅 Cargar Resultados</h2>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {pending.map((match: any) => (
               <div key={match.id} className="flex items-center gap-3 bg-slate-700/50 rounded-xl px-4 py-3">
                 <div className="flex-1 flex items-center gap-2 text-sm">
-                  <span>{match.home_team?.flag_emoji}</span>
+                  <TeamFlag team={match.home_team} />
                   <span className="text-white">{match.home_team?.name}</span>
                   <span className="text-slate-500">vs</span>
                   <span className="text-white">{match.away_team?.name}</span>
-                  <span>{match.away_team?.flag_emoji}</span>
+                  <TeamFlag team={match.away_team} />
                 </div>
                 <span className="text-xs text-slate-400">
                   {new Date(match.match_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
                 </span>
+                <a href={`/admin/resultado/${match.id}`} className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
+                  Cargar resultado
+                </a>
               </div>
             ))}
             {pending.length === 0 && (
@@ -65,7 +76,7 @@ export default async function AdminPage() {
           </div>
         </div>
         <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5">
-          <h2 className="font-semibold text-white mb-4">Usuarios registrados</h2>
+          <h2 className="font-semibold text-white mb-4">👥 Usuarios registrados</h2>
           <div className="space-y-2">
             {users.filter(u => u.rol === 'user').map((u: any) => (
               <div key={u.id} className="flex items-center gap-3 bg-slate-700/50 rounded-xl px-4 py-3">
