@@ -2,6 +2,14 @@ import React from 'react'
 export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 
+function TeamFlag({ team }: { team: any }) {
+  if (!team) return null
+  const isUrl = team.flag_emoji?.startsWith('http')
+  return isUrl
+    ? <img src={team.flag_emoji} alt={team.name} className="w-8 h-5 object-cover rounded-sm inline-block" />
+    : <span className="text-xl">{team.flag_emoji}</span>
+}
+
 export default async function PartidosPage() {
   let matches: any[] = []
   try {
@@ -34,9 +42,9 @@ export default async function PartidosPage() {
               {dayMatches.map((match: any) => (
                 <div key={match.id} className="bg-slate-800 border border-slate-700 rounded-xl p-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 text-right">
-                      <span className="text-white font-medium">{match.home_team?.name}</span>
-                      <span className="ml-2 text-xl">{match.home_team?.flag_emoji}</span>
+                    <div className="flex-1 text-right flex items-center justify-end gap-2">
+                      <span className="text-white font-medium text-sm">{match.home_team?.name}</span>
+                      <TeamFlag team={match.home_team} />
                     </div>
                     <div className="text-center min-w-[80px]">
                       {match.status === 'finished' ? (
@@ -47,9 +55,9 @@ export default async function PartidosPage() {
                         </span>
                       )}
                     </div>
-                    <div className="flex-1">
-                      <span className="text-xl">{match.away_team?.flag_emoji}</span>
-                      <span className="ml-2 text-white font-medium">{match.away_team?.name}</span>
+                    <div className="flex-1 flex items-center gap-2">
+                      <TeamFlag team={match.away_team} />
+                      <span className="text-white font-medium text-sm">{match.away_team?.name}</span>
                     </div>
                   </div>
                   <p className="text-xs text-slate-500 text-center mt-2">
