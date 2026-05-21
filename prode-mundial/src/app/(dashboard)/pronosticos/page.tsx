@@ -1,18 +1,32 @@
 import React from 'react'
 export const dynamic = 'force-dynamic'
+import { createClient } from '@/lib/supabase/server'
+import PronosticosClient from './PronosticosClient'
 
-export default function PronosticosPage() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">🎯 Mis Pronósticos</h1>
-        <p className="text-slate-400 text-sm mt-1">Cierran 30 minutos antes de cada partido</p>
-      </div>
-      <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5 text-center py-12">
-        <p className="text-4xl mb-3">⚽</p>
-        <p className="text-white font-medium mb-2">Los pronósticos estarán disponibles pronto</p>
-        <p className="text-slate-400 text-sm">Los partidos empiezan el 11 de junio de 2026</p>
-      </div>
-    </div>
-  )
+export default async function PronosticosPage() {
+  let matches: any[] = []
+  let predictions: any[] = []
+  let userId = ''
+
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      userId = user.id
+      const { data: m } = await supabase
+        .from('matches')
+        .select('*, home_team:teams!home_team_id(*), away_team:teams!away_team_id(*)')
+        .eq('status', 'scheduled')
+        .order('match_date')
+      matches = m || []
+
+      const { data: p } = await supabase
+        .from('predictions')
+        .select('*')
+        .eq('user_id', user.id)
+      predictions = p || []
+    }
+  } catch (e) {}
+
+  return <PronosticosClient matches={matches} predictions={predictions} userId={userId} />
 }
