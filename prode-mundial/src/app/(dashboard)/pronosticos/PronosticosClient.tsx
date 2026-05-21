@@ -35,13 +35,20 @@ export default function PronosticosClient({ matches }: { matches: any[] }) {
   async function savePrediction(matchId: string) {
     const pred = preds[matchId]
     if (!pred || pred.home === '' || pred.away === '') return
+    let uid = userId
+    if (!uid) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) { setUserId(user.id); uid = user.id }
+      else return
+    }
     setSaving(matchId)
-    await supabase.from('predictions').upsert({
-      user_id: userId,
+    const { error } = await supabase.from('predictions').upsert({
+      user_id: uid,
       match_id: matchId,
       predicted_home: parseInt(pred.home),
       predicted_away: parseInt(pred.away)
     }, { onConflict: 'user_id,match_id' })
+    if (error) console.error('Error guardando:', error)
     setSaving(null)
     setSaved(matchId)
     setTimeout(() => setSaved(null), 2000)
@@ -114,4 +121,13 @@ export default function PronosticosClient({ matches }: { matches: any[] }) {
                   className="mt-3 w-full py-2 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-50"
                   style={{ background: isSaved ? '#16a34a' : 'linear-gradient(135deg, #476697 0%, #1D3665 100%)' }}
                 >
-                  {saving === match.id ? 'Guardando...' : isSaved ? '✅ Guardado!' : hasPred ? '✏️ Act
+                  {saving === match.id ? 'Guardando...' : isSaved ? '✅ Guardado!' : hasPred ? '✏️ Actualizar pronóstico' : '💾 Guardar pronóstico'}
+                </button>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
