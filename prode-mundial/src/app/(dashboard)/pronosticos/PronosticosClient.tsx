@@ -1,22 +1,36 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 function isPredictionOpen(matchDate: string) {
   return new Date(matchDate).getTime() - Date.now() > 30 * 60 * 1000
 }
 
-export default function PronosticosClient({ matches, predictions, userId }: any) {
+export default function PronosticosClient({ matches }: { matches: any[] }) {
   const supabase = createClient()
-  const [preds, setPreds] = useState<Record<string, { home: string, away: string }>>(() => {
-    const map: Record<string, { home: string, away: string }> = {}
-    predictions.forEach((p: any) => {
-      map[p.match_id] = { home: String(p.predicted_home), away: String(p.predicted_away) }
-    })
-    return map
-  })
+  const [preds, setPreds] = useState<Record<string, { home: string, away: string }>>({})
   const [saving, setSaving] = useState<string | null>(null)
   const [saved, setSaved] = useState<string | null>(null)
+  const [userId, setUserId] = useState('')
+  const [existingPreds, setExistingPreds] = useState<any[]>([])
+
+  useEffect(() => {
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      setUserId(user.id)
+      const { data } = await supabase.from('predictions').select('*').eq('user_id', user.id)
+      if (data) {
+        setExistingPreds(data)
+        const map: Record<string, { home: string, away: string }> = {}
+        data.forEach((p: any) => {
+          map[p.match_id] = { home: String(p.predicted_home), away: String(p.predicted_away) }
+        })
+        setPreds(map)
+      }
+    }
+    load()
+  }, [])
 
   async function savePrediction(matchId: string) {
     const pred = preds[matchId]
@@ -40,7 +54,7 @@ export default function PronosticosClient({ matches, predictions, userId }: any)
         <div className="bg-slate-800 border border-slate-700 rounded-2xl p-12 text-center">
           <p className="text-4xl mb-3">⚽</p>
           <p className="text-white font-medium mb-2">No hay partidos disponibles</p>
-          <p className="text-slate-400 text-sm">Los partidos aparecerán cuando el admin los habilite</p>
+          <p className="text-slate-400 text-sm">Los partidos aparecerán pronto</p>
         </div>
       </div>
     )
@@ -56,7 +70,7 @@ export default function PronosticosClient({ matches, predictions, userId }: any)
         {matches.map((match: any) => {
           const open = isPredictionOpen(match.match_date)
           const pred = preds[match.id] || { home: '', away: '' }
-          const hasPred = predictions.find((p: any) => p.match_id === match.id)
+          const hasPred = existingPreds.find((p: any) => p.match_id === match.id)
           const isSaved = saved === match.id
           return (
             <div key={match.id} className="bg-slate-800 border border-slate-700 rounded-2xl p-4">
@@ -100,13 +114,4 @@ export default function PronosticosClient({ matches, predictions, userId }: any)
                   className="mt-3 w-full py-2 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-50"
                   style={{ background: isSaved ? '#16a34a' : 'linear-gradient(135deg, #476697 0%, #1D3665 100%)' }}
                 >
-                  {saving === match.id ? 'Guardando...' : isSaved ? '✅ Guardado!' : hasPred ? '✏️ Actualizar pronóstico' : '💾 Guardar pronóstico'}
-                </button>
-              )}
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
+                  {saving === match.id ? 'Guardando...' : isSaved ? '✅ Guardado!' : hasPred ? '✏️ Act
