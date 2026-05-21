@@ -22,5 +22,5 @@ export default async function PronosticosPage() {
     console.error('Error:', e)
   }
 
-  return <PronosticosClient matches={matches} predictions={predictions} userId={userId} />
+return <PronosticosClient matches={matches} />
 }
