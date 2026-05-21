@@ -28,11 +28,13 @@ export default async function PartidosPage() {
     return acc
   }, {})
 
+  const tz = 'America/Argentina/Buenos_Aires'
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">📅 Todos los Partidos</h1>
-        <p className="text-slate-400 text-sm mt-1">Fixture completo del Mundial 2026</p>
+        <p className="text-slate-400 text-sm mt-1">Horarios en Argentina (GMT-3)</p>
       </div>
       {Object.keys(groups).length > 0 ? (
         Object.entries(groups).map(([day, dayMatches]: any) => (
@@ -51,7 +53,7 @@ export default async function PartidosPage() {
                         <span className="text-white font-bold">{match.home_score} - {match.away_score}</span>
                       ) : (
                         <span className="text-slate-500 text-sm font-medium">
-                          {new Date(match.match_date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs
+                          {new Date(match.match_date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', timeZone: tz })} hs
                         </span>
                       )}
                     </div>
@@ -61,7 +63,7 @@ export default async function PartidosPage() {
                     </div>
                   </div>
                   <p className="text-xs text-slate-500 text-center mt-2">
-                    {new Date(match.match_date).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    {new Date(match.match_date).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz })}
                     {match.venue && ` · ${match.venue}`}
                   </p>
                 </div>
