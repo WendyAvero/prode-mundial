@@ -16,7 +16,7 @@ export default async function PronosticosPage() {
       const { data: m } = await supabase
         .from('matches')
         .select('*, home_team:teams!home_team_id(*), away_team:teams!away_team_id(*)')
-        .eq('status', 'scheduled')
+        .in('status', ['scheduled', 'live'])
         .order('match_date')
       matches = m || []
 
@@ -26,7 +26,9 @@ export default async function PronosticosPage() {
         .eq('user_id', user.id)
       predictions = p || []
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('Error:', e)
+  }
 
   return <PronosticosClient matches={matches} predictions={predictions} userId={userId} />
 }
