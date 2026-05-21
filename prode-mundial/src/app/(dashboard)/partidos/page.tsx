@@ -42,8 +42,8 @@ export default async function PartidosPage() {
                       {match.status === 'finished' ? (
                         <span className="text-white font-bold">{match.home_score} - {match.away_score}</span>
                       ) : (
-                        <span className="text-slate-500 text-sm">
-                          {new Date(match.match_date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                        <span className="text-slate-500 text-sm font-medium">
+                          {new Date(match.match_date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs
                         </span>
                       )}
                     </div>
@@ -53,7 +53,8 @@ export default async function PartidosPage() {
                     </div>
                   </div>
                   <p className="text-xs text-slate-500 text-center mt-2">
-                    {new Date(match.match_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })}
+                    {new Date(match.match_date).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    {match.venue && ` · ${match.venue}`}
                   </p>
                 </div>
               ))}
